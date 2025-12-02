@@ -3,9 +3,14 @@ import pandas as pd
 import joblib
 import json
 
-# ------------------------------
-# Load Model and Feature Names
-# ------------------------------
+# ------------------------------------------------
+# MUST BE THE FIRST STREAMLIT COMMAND
+# ------------------------------------------------
+st.set_page_config(page_title="Customer Churn Prediction", layout="centered")
+
+# ------------------------------------------------
+# Load Model
+# ------------------------------------------------
 @st.cache_resource
 def load_model():
     model = joblib.load("./models/churn_rf_model.pkl")
@@ -13,20 +18,15 @@ def load_model():
 
 model = load_model()
 
-
-# ------------------------------
-# Streamlit App UI
-# ------------------------------
-
-st.set_page_config(page_title="Customer Churn Prediction", layout="centered")
+# ------------------------------------------------
+# Streamlit UI
+# ------------------------------------------------
 st.title("📊 Customer Churn Prediction App")
 st.write("Enter customer details below to predict churn probability.")
 
-
-# ------------------------------
+# ------------------------------------------------
 # Input Form
-# ------------------------------
-
+# ------------------------------------------------
 st.subheader("🔧 Customer Information")
 
 col1, col2 = st.columns(2)
@@ -49,14 +49,11 @@ with col2:
 contract_type = st.selectbox("Contract Type", ["Monthly", "Quarterly", "Annual"])
 plan_type = st.selectbox("Plan Type", ["Basic", "Standard", "Premium"])
 
-
-# ------------------------------
+# ------------------------------------------------
 # Predict Button
-# ------------------------------
-
+# ------------------------------------------------
 if st.button("🔮 Predict Churn"):
 
-    # Build input dict
     input_data = {
         "tenure_months": tenure_months,
         "monthly_charge": monthly_charge,
@@ -80,11 +77,8 @@ if st.button("🔮 Predict Churn"):
     prediction = model.predict(df)[0]
     probability = model.predict_proba(df)[0][1]
 
-    # --------------------------
-    # Display Output
-    # --------------------------
+    # Output
     st.subheader("📈 Prediction Result")
-
     st.write(f"**Churn Probability:** `{round(probability, 3)}`")
 
     if prediction == 1:
@@ -92,10 +86,8 @@ if st.button("🔮 Predict Churn"):
     else:
         st.success("✅ The customer is **NOT likely to churn**.")
 
-
 st.write("----")
 st.write("Built with ❤️ using Streamlit & Machine Learning")
-
 
 
 
