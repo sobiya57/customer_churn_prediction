@@ -1,154 +1,136 @@
-📘 README.md — Customer Churn Prediction Project
-📊 Customer Churn Prediction
+📌 README.md — Professional Version
+📊 Customer Churn Prediction (End-to-End Machine Learning Project)
 
-A machine learning project to predict whether a customer is likely to churn based on their usage behavior, subscription details, and engagement metrics.
-This project includes data preprocessing, feature engineering, model training using a Random Forest classifier, and a fully functional Streamlit web application for real-time churn prediction.
+This project predicts customer churn (whether a customer is likely to leave a service) using machine learning.
+It includes EDA, model training, preprocessing pipelines, prediction scripts, and a full Streamlit web app for interactive churn prediction.
 
 🚀 Project Overview
 
-Customer churn is one of the biggest challenges for subscription-based businesses.
-This project predicts whether a customer will continue using the service or churn, allowing companies to take preventive action.
+Customer churn is a key metric for subscription-based businesses.
+This project provides an end-to-end ML solution:
 
-The project includes:
+📥 Import & preprocess customer data
 
-✔ Data preprocessing
-✔ Feature engineering
-✔ ML model training with a pipeline
-✔ Streamlit-based front-end application
-✔ OneHotEncoder + StandardScaler preprocessing
-✔ Random Forest classifier
-✔ Deployment-ready structure
+🔍 Perform detailed Exploratory Data Analysis (EDA)
 
-📂 Project Structure
+🤖 Train ML models (Logistic Regression & Random Forest)
+
+🧠 Save trained pipelines
+
+📝 Generate feature names for deployment
+
+🌐 Deploy a Streamlit app for real-time prediction
+
+📦 Production-grade src/ code for model training & inference
+
+📁 Project Structure
 customer_churn_project/
 │
 ├── data/
 │   └── churn_dataset_10000.csv
 │
 ├── models/
-│   ├── churn_pipeline_random_forest.joblib
+│   ├── churn_rf_model.pkl
+│   ├── churn_log_reg_model.pkl
 │   └── feature_names.json
 │
-├── app.py
+├── src/
+│   ├── preprocess.py
+│   ├── train.py
+│   └── predict.py
+│
+├── screenshots/
+│   ├── app_home.png
+│   ├── input_form.png
+│   └── prediction_output.png
+│
 ├── 01_EDA.ipynb
 ├── 02_Model_Training.ipynb
+├── app.py
+├── requirements.txt
 └── README.md
 
-🧠 Features Used in the Model
+🧪 Dataset Description
 
-The following features were selected for the final model:
+The dataset contains 10,000 customer records with:
 
-signup_date
+Customer Behavior
 
-reference_date
+Tenure
 
-tenure_months
+Monthly charges
 
-contract_type
+Usage (minutes, sessions)
 
-plan_type
+Login activity
 
-monthly_charge
+Failed payments
 
-auto_pay
+Support history
 
-has_discount
+Customer Metadata
 
-num_logins_30d
+Plan type
 
-total_usage_30d_min
+Contract type
 
-avg_session_length_min
+Discounts
 
-days_since_last_login
+Auto-pay
 
-recent_activity_flag
+Target Variable
 
-support_tickets_90d
+churn (0 = not churned, 1 = churned)
 
-failed_payments_90d
+📊 Exploratory Data Analysis (EDA)
 
-🚫 customer_id was removed because it does not contribute to prediction.
+The EDA notebook (01_EDA.ipynb) includes:
 
-🛠️ Technologies Used
+Missing value analysis
 
-✔ Python
-✔ Pandas
-✔ NumPy
-✔ Scikit-learn
-✔ Streamlit
-✔ Joblib
-✔ OneHotEncoder
-✔ StandardScaler
-✔ RandomForestClassifier
+Target distribution
 
-🔧 How the Model Works
-Preprocessing Pipeline:
+Categorical distribution
 
-Categorical features → OneHotEncoder
+Numerical histograms
 
-Numeric features → StandardScaler
+Churn vs numerical variables
 
-Combined using → ColumnTransformer
+Churn vs categorical variables
 
-Wrapped in a → Scikit-learn Pipeline
+Correlation heatmap
 
-Model:
+Business insights
 
-👉 RandomForestClassifier
+🔍 Key Insights:
 
-n_estimators = 300
+Customers with low tenure churn more.
 
-max_depth = 10
+Customers with failed payments have higher churn risk.
 
-random_state = 42
+Monthly contract users churn more than annual plan users.
 
-Output:
+Customers with auto-pay enabled churn significantly less.
 
-✔ Churn prediction (Yes / No)
-✔ Churn probability score
+🤖 Model Training
 
-▶️ How to Run the Project Locally
-1️⃣ Create a virtual environment
-python -m venv .venv
+The training notebook (02_Model_Training.ipynb) performs:
 
-2️⃣ Activate the environment
+✔ Data cleaning
+✔ Train-test split
+✔ Preprocessing pipeline using ColumnTransformer
 
-Windows:
+StandardScaler (numeric features)
 
-.venv\Scripts\activate
+OneHotEncoder (categorical features)
 
+✔ Models used:
 
-Mac/Linux:
+Logistic Regression
 
-source .venv/bin/activate
+Random Forest
 
-3️⃣ Install required packages
-pip install -r requirements.txt
-
-
-If you don’t have a requirements file yet, run:
-
-pip freeze > requirements.txt
-
-4️⃣ Run Streamlit App
-streamlit run app.py
-
-🌐 Deploying the App
-
-You can deploy using:
-
-✔ Streamlit Cloud (Recommended)
-
-Just upload your project to GitHub and connect it.
-
-✔ Netlify (Landing Page only)
-
-Use for a static landing page linked to your Streamlit app.
-
-📈 Model Performance
-
-A Random Forest model was used. Metrics include:
+✔ Evaluation metrics:
 
 Accuracy
 
@@ -156,38 +138,86 @@ Precision
 
 Recall
 
-F1 score
+F1-score
 
-Classification Report
+ROC-AUC
 
-(Values depend on dataset and training run)
+Both models are trained and saved in /models/.
 
----
+🧠 Production Code (src/)
+📌 preprocess.py
 
-## 📸 Application Screenshots
+Contains preprocessing pipeline used for both training and prediction.
 
-### 🏠 1. App Home Screen
-This screen displays the title and the beginning of the input form used for churn prediction.
+📌 train.py
 
-![App Home](screenshots/app_home.png)
+Trains both models:
 
----
+Saves trained pipelines
 
-### 📝 2. Input Form Section
-This section shows all the customer details that need to be filled in before predicting churn.
+Generates feature_names.json
 
-![Input Form](screenshots/input_form.png)
+Evaluates models
 
----
+📌 predict.py
 
-### 🔍 3. Prediction Output
-After clicking **Predict Churn**, the app displays the churn result and the probability score.
+Loads saved model and predicts churn for new customers.
 
-![Prediction Output](screenshots/prediction_output.png)
+🌐 Streamlit Web App
 
----
+The app (app.py) provides a clean interface to input customer details and get predictions:
 
-🙌 Author
+Features:
+
+Numeric & categorical inputs
+
+Displays churn probability
+
+Highlights churn risk
+
+Easy to use on desktop/mobile
+
+Run locally:
+streamlit run app.py
+
+📦 Installation
+pip install -r requirements.txt
+
+🧪 Train Model
+python src/train.py
+
+🔮 Run Prediction Script
+python src/predict.py
+
+📸 Application Screenshots
+
+🏠 Home Page
+
+📝 Input Form
+
+📈 Prediction Output
+
+	
+
+🛠️ Tech Stack
+
+Python
+
+Pandas
+
+NumPy
+
+Scikit-Learn
+
+Matplotlib / Seaborn
+
+Streamlit
+
+Joblib
+
+👩‍💻 Author
 
 Sobiya Begum
-Data Science & Data Analysis Enthusiast
+Machine Learning & Data Science Enthusiast
+📧 Email: sobiyabegumbegum@gmail.com
+🔗 LinkedIn: www.linkedin.com/in/

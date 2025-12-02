@@ -1,78 +1,64 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 import json
-from datetime import datetime
 
-# ------------------------------------------------------------
-# Load Model & Feature Info
-# ------------------------------------------------------------
-model = joblib.load("models/churn_pipeline_random_forest.joblib")
+# ------------------------------
+# Load Model and Feature Names
+# ------------------------------
+@st.cache_resource
+def load_model():
+    model = joblib.load("./models/churn_rf_model.pkl")
+    return model
 
-with open("models/feature_names.json", "r") as f:
-    feature_info = json.load(f)
+model = load_model()
 
-feature_cols = feature_info["feature_cols"]
-numeric_features = feature_info["numeric_features"]
-categorical_features = feature_info["categorical_features"]
 
-# ------------------------------------------------------------
-# Helper function: Convert date to UNIX timestamp
-# ------------------------------------------------------------
-def convert_date_to_timestamp(date_val):
-    try:
-        dt = pd.to_datetime(date_val, errors="coerce")
-        return int(dt.value // 10**9)
-    except:
-        return 0
+# ------------------------------
+# Streamlit App UI
+# ------------------------------
 
-# ------------------------------------------------------------
-# Streamlit UI
-# ------------------------------------------------------------
+st.set_page_config(page_title="Customer Churn Prediction", layout="centered")
 st.title("📊 Customer Churn Prediction App")
-st.write("Fill the details below to predict customer churn.")
+st.write("Enter customer details below to predict churn probability.")
 
-# ------------------------------------------------------------
-# Input Fields (MATCHES MODEL EXACTLY)
-# ------------------------------------------------------------
 
-signup_date = st.date_input("Signup Date")
-reference_date = st.date_input("Reference Date")
+# ------------------------------
+# Input Form
+# ------------------------------
 
-tenure_months = st.number_input("Tenure (months)", min_value=0, value=0)
+st.subheader("🔧 Customer Information")
 
-contract_type = st.selectbox("Contract Type", ["Monthly", "Quarterly", "Yearly"])
+col1, col2 = st.columns(2)
+
+with col1:
+    tenure_months = st.number_input("Tenure (Months)", min_value=0, max_value=120, value=12)
+    monthly_charge = st.number_input("Monthly Charge ($)", min_value=0.0, max_value=200.0, value=29.99)
+    auto_pay = st.selectbox("Auto Pay Enabled?", [0, 1])
+    has_discount = st.selectbox("Has Discount?", [0, 1])
+    num_logins_30d = st.number_input("Number of Logins (30 days)", min_value=0, max_value=200, value=20)
+    total_usage_30d_min = st.number_input("Total Usage (Minutes, 30 days)", min_value=0, max_value=5000, value=500)
+
+with col2:
+    avg_session_length_min = st.number_input("Avg Session Length (min)", min_value=0, max_value=60, value=15)
+    days_since_last_login = st.number_input("Days Since Last Login", min_value=0, max_value=60, value=2)
+    recent_activity_flag = st.selectbox("Recent Activity Flag", [0, 1])
+    support_tickets_90d = st.number_input("Support Tickets (90 days)", min_value=0, max_value=50, value=0)
+    failed_payments_90d = st.number_input("Failed Payments (90 days)", min_value=0, max_value=20, value=0)
+
+contract_type = st.selectbox("Contract Type", ["Monthly", "Quarterly", "Annual"])
 plan_type = st.selectbox("Plan Type", ["Basic", "Standard", "Premium"])
 
-monthly_charge = st.number_input("Monthly Charge (₹)", min_value=0.0, value=0.0)
 
-auto_pay = st.selectbox("Auto Pay Enabled?", ["Yes", "No"])
-has_discount = st.selectbox("Has Discount?", ["Yes", "No"])
-
-num_logins_30d = st.number_input("Logins (last 30 days)", min_value=0, value=0)
-total_usage_30d_min = st.number_input("Usage (minutes, last 30 days)", min_value=0, value=0)
-avg_session_length_min = st.number_input("Avg Session Duration (min)", min_value=0.0, value=0.0)
-
-days_since_last_login = st.number_input("Days Since Last Login", min_value=0, value=0)
-
-recent_activity_flag = st.selectbox("Recent Activity Level", ["Low", "Medium", "High"])
-
-support_tickets_90d = st.number_input("Support Tickets (last 90 days)", min_value=0, value=0)
-failed_payments_90d = st.number_input("Failed Payments (last 90 days)", min_value=0, value=0)
-
-# ------------------------------------------------------------
+# ------------------------------
 # Predict Button
-# ------------------------------------------------------------
-if st.button("Predict Churn"):
+# ------------------------------
 
-    # Create input DataFrame (NO customer_id here)
-    input_data = pd.DataFrame([{
-        "signup_date": convert_date_to_timestamp(signup_date),
-        "reference_date": convert_date_to_timestamp(reference_date),
+if st.button("🔮 Predict Churn"):
+
+    # Build input dict
+    input_data = {
         "tenure_months": tenure_months,
-        "contract_type": contract_type,
-        "plan_type": plan_type,
         "monthly_charge": monthly_charge,
         "auto_pay": auto_pay,
         "has_discount": has_discount,
@@ -82,37 +68,34 @@ if st.button("Predict Churn"):
         "days_since_last_login": days_since_last_login,
         "recent_activity_flag": recent_activity_flag,
         "support_tickets_90d": support_tickets_90d,
-        "failed_payments_90d": failed_payments_90d
-    }])
-    
-    # ------------------------------------------------------------
-    # FIX: Ensure numeric columns are numeric
-    # ------------------------------------------------------------
-    for col in numeric_features:
-        input_data[col] = pd.to_numeric(input_data[col], errors="coerce").fillna(0)
+        "failed_payments_90d": failed_payments_90d,
+        "contract_type": contract_type,
+        "plan_type": plan_type
+    }
 
-    # Categorical columns must remain strings
-    for col in categorical_features:
-        input_data[col] = input_data[col].astype(str)
+    # Convert to DataFrame
+    df = pd.DataFrame([input_data])
 
-    # Ensure correct column order
-    input_data = input_data[feature_cols]
+    # Predict
+    prediction = model.predict(df)[0]
+    probability = model.predict_proba(df)[0][1]
 
-    # ------------------------------------------------------------
-    # Make Prediction
-    # ------------------------------------------------------------
-    prediction = model.predict(input_data)[0]
-    probability = model.predict_proba(input_data)[0][1]
+    # --------------------------
+    # Display Output
+    # --------------------------
+    st.subheader("📈 Prediction Result")
 
-    # ------------------------------------------------------------
-    # Output
-    # ------------------------------------------------------------
-    st.subheader("🔍 Prediction Result")
+    st.write(f"**Churn Probability:** `{round(probability, 3)}`")
 
     if prediction == 1:
-        st.error(f"⚠ Customer is LIKELY to churn ({probability*100:.2f}% probability)")
+        st.error("⚠️ The customer is **LIKELY to churn**.")
     else:
-        st.success(f"✓ Customer is NOT likely to churn ({probability*100:.2f}% probability)")
+        st.success("✅ The customer is **NOT likely to churn**.")
+
+
+st.write("----")
+st.write("Built with ❤️ using Streamlit & Machine Learning")
+
 
 
 

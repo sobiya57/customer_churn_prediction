@@ -1,38 +1,19 @@
-{
-    "feature_cols": [
-        "signup_date",
-        "reference_date",
-        "tenure_months",
-        "contract_type",
-        "plan_type",
-        "monthly_charge",
-        "auto_pay",
-        "has_discount",
-        "num_logins_30d",
-        "total_usage_30d_min",
-        "avg_session_length_min",
-        "days_since_last_login",
-        "recent_activity_flag",
-        "support_tickets_90d",
-        "failed_payments_90d"
-    ],
-    "numeric_features": [
-        "signup_date",
-        "reference_date",
-        "tenure_months",
-        "monthly_charge",
-        "num_logins_30d",
-        "total_usage_30d_min",
-        "avg_session_length_min",
-        "days_since_last_login",
-        "support_tickets_90d",
-        "failed_payments_90d"
-    ],
-    "categorical_features": [
-        "contract_type",
-        "plan_type",
-        "auto_pay",
-        "has_discount",
-        "recent_activity_flag"
-    ]
-}
+[
+    "tenure_months",
+    "monthly_charge",
+    "auto_pay",
+    "has_discount",
+    "num_logins_30d",
+    "total_usage_30d_min",
+    "avg_session_length_min",
+    "days_since_last_login",
+    "recent_activity_flag",
+    "support_tickets_90d",
+    "failed_payments_90d",
+    "contract_type_Annual",
+    "contract_type_Monthly",
+    "contract_type_Quarterly",
+    "plan_type_Basic",
+    "plan_type_Premium",
+    "plan_type_Standard"
+]
